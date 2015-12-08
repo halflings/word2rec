@@ -4,7 +4,6 @@ class Word2VecRecommender(object):
     DEFAULT_WORD2VEC_PARAMETERS = dict(size=200, window=6, min_count=5, workers=8)
 
     def __init__(self, **word2vec_parameters):
-        # TODO : pass these as parameters
         self.word2vec_params = dict(Word2VecRecommender.DEFAULT_WORD2VEC_PARAMETERS)
         self.word2vec_params.update(word2vec_parameters)
         self.model = Word2Vec(**self.word2vec_params)
@@ -24,5 +23,9 @@ class Word2VecRecommender(object):
         self.model.train(self.training_items)
         self.model.init_sims(replace=True)
 
-    def recommend(self, user_items):
-        pass
+    def recommend(self, user_items, negative_items=None, num_items=10):
+        negative_items = negative_items or []
+        user_items = [item for item in user_items if item in self.model.vocab]
+        if not user_items:
+            return []
+        return self.model.most_similar(positive=user_items, negative=negative_items, topn=num_items)
